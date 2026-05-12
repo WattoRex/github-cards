@@ -1,6 +1,6 @@
 # GitHub Cards
 
-A self-hosted Express server that generates two types of dynamic SVG cards for GitHub profiles — a **Stats Card** and a **Most Used Languages Card**.
+A self-hosted Express server that generates two types of dynamic SVG cards for GitHub profiles, a **Stats Card** and a **Most Used Languages Card**.
 
 Both are theme-aware, customizable, and ready to embed in any Markdown file.
 
@@ -82,7 +82,7 @@ score = stars×0.3 + commits×0.35 + PRs×0.2 + issues×0.1 + contributions×0.0
 
 Two display styles are available via the `grade_style` parameter:
 
-#### Letter Style (`grade_style=letter`) — default
+#### Letter Style (`grade_style=letter`), default
 
 A compact pill badge showing a letter grade.
 
@@ -174,7 +174,7 @@ Embed in a Markdown file:
 | `exclude_langs`   | string  | —                  | Comma-separated languages to exclude           |
 
 > **⚠️ Note on private repositories**
-> `private=true` only works if the server uses **your own** `GITHUB_TOKEN` — one that has access to your private repos.
+> `private=true` only works if the server uses **your own** `GITHUB_TOKEN`, one that has access to your private repos.
 > If you are using a public demo instance hosted by someone else, this parameter will have no effect or may return an error.
 > To use it, [self-host the server](#deploying) and set your own token in the environment variables.
 
