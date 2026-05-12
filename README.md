@@ -119,7 +119,6 @@ A wider badge whose width adapts to the title text, displaying a fantasy-inspire
 | `theme`        | string  | `dark`                      | Card theme (see [Themes](#themes))        |
 | `grade_style`  | string  | `letter`                    | Grade display style: `letter` or `rpg`    |
 | `hide_border`  | boolean | `false`                     | Hide the card border                      |
-| `show_avatar`  | boolean | `true`                      | Show the user's GitHub avatar             |
 | `card_width`   | number  | `520`                       | Card width in pixels (min: 300, max: 800) |
 | `custom_title` | string  | `{username}'s GitHub Stats` | Override the card title                   |
 
@@ -128,7 +127,7 @@ A wider badge whose width adapts to the title text, displaying a fantasy-inspire
 ```
 /stats/your-username?theme=tokyonight&grade_style=letter
 /stats/your-username?theme=dracula&grade_style=rpg
-/stats/your-username?theme=radical&hide_border=true&show_avatar=false&grade_style=rpg
+/stats/your-username?theme=radical&hide_border=true&grade_style=rpg
 ```
 
 ---
@@ -167,7 +166,6 @@ Embed in a Markdown file:
 | `hide_border`     | boolean | `false`            | Hide the card border                           |
 | `compact`         | boolean | `false`            | Use a more compact row height                  |
 | `show_repo_count` | boolean | `false`            | Show repo and language count in subtitle       |
-| `show_avatar`     | boolean | `true`             | Show the user's GitHub avatar                  |
 | `custom_title`    | string  | _(locale default)_ | Override the card title                        |
 | `private`         | boolean | `false`            | Include private repositories ⚠️ See note below |
 | `forks`           | boolean | `true`             | Include forked repositories                    |

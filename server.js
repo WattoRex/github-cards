@@ -25,20 +25,6 @@ const headers = {
   Accept: "application/vnd.github+json",
 };
 
-async function fetchAvatarBase64(url) {
-  try {
-    const response = await axios.get(url, {
-      responseType: "arraybuffer",
-      headers,
-    });
-    const mime = response.headers["content-type"] || "image/png";
-    const b64 = Buffer.from(response.data).toString("base64");
-    return `data:${mime};base64,${b64}`;
-  } catch {
-    return null;
-  }
-}
-
 /*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COLORS
@@ -103,14 +89,12 @@ const colors = {
   Raku: "#0000fb",
   Lua: "#000080",
   Tcl: "#e4cc98",
-  Groovy: "#4298b8",
   Elixir: "#6e4a7e",
   Erlang: "#B83998",
   "Emacs Lisp": "#c065db",
   "Common Lisp": "#3fb68b",
   Scheme: "#1e4aec",
   Racket: "#3c5caa",
-  Clojure: "#db5855",
   // Shell & Config
   Shell: "#89e051",
   Bash: "#89e051",
@@ -341,7 +325,7 @@ SVG GENERATOR
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-function generateSVG(username, avatar, languages, options = {}) {
+function generateSVG(username, languages, options = {}) {
   const {
     theme = "dark",
     locale = "en",
@@ -352,7 +336,6 @@ function generateSVG(username, avatar, languages, options = {}) {
     custom_title,
     show_repo_count = false,
     repo_count = 0,
-    show_avatar = true,
   } = options;
 
   const t = themes[theme] || themes.dark;
@@ -360,14 +343,12 @@ function generateSVG(username, avatar, languages, options = {}) {
   const title = custom_title || l.title;
 
   const PADDING = 30;
-  const AVATAR_SIZE = 52;
-  const PERCENT_LABEL_WIDTH = 52; // reserved space for "100.0%" label
-  const GAP = 10; // gap between bar end and percent label
+  const PERCENT_LABEL_WIDTH = 52;
+  const GAP = 10;
   const BAR_MAX_WIDTH =
     card_width - PADDING * 2 - 130 - PERCENT_LABEL_WIDTH - GAP;
 
-  // Header height
-  const HEADER_HEIGHT = 90;
+  const HEADER_HEIGHT = 60;
   const ROW_HEIGHT = compact ? 28 : 38;
   const BODY_START = HEADER_HEIGHT + 20;
 
@@ -404,28 +385,15 @@ function generateSVG(username, avatar, languages, options = {}) {
     ? ""
     : `<rect width="${card_width}" height="${totalHeight}" rx="12" fill="none" stroke="${t.border}" stroke-width="1"/>`;
 
-  const avatarBlock =
-    show_avatar && avatar
-      ? `
-      <clipPath id="avatar-clip">
-        <circle cx="${PADDING + AVATAR_SIZE / 2}" cy="34" r="${AVATAR_SIZE / 2}"/>
-      </clipPath>
-      <image href="${avatar}" x="${PADDING}" y="${34 - AVATAR_SIZE / 2}" width="${AVATAR_SIZE}" height="${AVATAR_SIZE}" clip-path="url(#avatar-clip)"/>
-    `
-      : "";
-
-  const usernameX =
-    show_avatar && avatar ? PADDING + AVATAR_SIZE + 12 : PADDING;
   const repoCountText = show_repo_count
-    ? `<text x="${usernameX}" y="58" fill="${t.subtext}" font-size="11" font-family="'Segoe UI', 'Ubuntu', sans-serif">${repo_count} ${l.repos} · ${languages.length} ${l.languages}</text>`
-    : `<text x="${usernameX}" y="58" fill="${t.subtext}" font-size="11" font-family="'Segoe UI', 'Ubuntu', sans-serif">${title}</text>`;
+    ? `<text x="${PADDING}" y="42" fill="${t.subtext}" font-size="11" font-family="'Segoe UI', 'Ubuntu', sans-serif">${repo_count} ${l.repos} · ${languages.length} ${l.languages}</text>`
+    : `<text x="${PADDING}" y="42" fill="${t.subtext}" font-size="11" font-family="'Segoe UI', 'Ubuntu', sans-serif">${title}</text>`;
 
   return `
-<svg width="${card_width}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="${card_width}" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">
   <rect width="${card_width}" height="${totalHeight}" rx="12" fill="${t.bg}"/>
   ${border}
-  ${avatarBlock}
-  <text x="${usernameX}" y="40" fill="${t.text}" font-size="16" font-weight="600" font-family="'Segoe UI', 'Ubuntu', sans-serif">
+  <text x="${PADDING}" y="24" fill="${t.text}" font-size="16" font-weight="600" font-family="'Segoe UI', 'Ubuntu', sans-serif">
     ${username}
   </text>
   ${repoCountText}
@@ -456,7 +424,6 @@ Query params:
   card_width    number in px (default: 500)
   custom_title  string
   show_repo_count true | false (default: false)
-  show_avatar   true | false (default: true)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
@@ -464,7 +431,6 @@ app.get("/languages/:username", async (req, res) => {
   try {
     const { username } = req.params;
 
-    // Parse options
     const includePrivate = req.query.private === "true";
     const includeForks = req.query.forks !== "false";
     const includeArchived = req.query.archived === "true";
@@ -484,22 +450,13 @@ app.get("/languages/:username", async (req, res) => {
     );
     const custom_title = req.query.custom_title || null;
     const show_repo_count = req.query.show_repo_count === "true";
-    const show_avatar = req.query.show_avatar !== "false";
 
-    // Validate theme
     if (!themes[theme]) {
       return res.status(400).json({
         error: true,
         message: `Unknown theme "${theme}". Available: ${Object.keys(themes).join(", ")}`,
       });
     }
-
-    // Fetch user
-    const userResponse = await axios.get(
-      `https://api.github.com/users/${username}`,
-      { headers },
-    );
-    const avatar = await fetchAvatarBase64(userResponse.data.avatar_url);
 
     // Fetch repos
     let repos = [];
@@ -522,7 +479,6 @@ app.get("/languages/:username", async (req, res) => {
       );
     }
 
-    // Apply filters
     repos = repos.filter((repo) => {
       if (!includeForks && repo.fork) return false;
       if (!includeArchived && repo.archived) return false;
@@ -546,7 +502,6 @@ app.get("/languages/:username", async (req, res) => {
       }
     }
 
-    // Compute percentages
     const total = Object.values(languageTotals).reduce((a, b) => a + b, 0);
 
     const sorted = Object.entries(languageTotals)
@@ -554,8 +509,7 @@ app.get("/languages/:username", async (req, res) => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, langCount);
 
-    // Generate SVG
-    const svg = generateSVG(username, avatar, sorted, {
+    const svg = generateSVG(username, sorted, {
       theme,
       locale,
       hide_border,
@@ -565,7 +519,6 @@ app.get("/languages/:username", async (req, res) => {
       custom_title,
       show_repo_count,
       repo_count: repos.length,
-      show_avatar,
     });
 
     res.setHeader("Content-Type", "image/svg+xml");
@@ -611,7 +564,7 @@ function computeGrade(
     for (let i = 0; i < tiers.length; i++) {
       if (score >= tiers[i].threshold) {
         const current = tiers[i];
-        const prev = tiers[i - 1] || null; // next rank (higher)
+        const prev = tiers[i - 1] || null;
         const nextThreshold = prev ? prev.threshold : null;
         const currentThreshold = current.threshold;
         const progress = nextThreshold
@@ -633,7 +586,6 @@ function computeGrade(
     }
   }
 
-  // Default: letter grades
   const tiers = [
     { threshold: 3000, label: "S", color: "#FFD700" },
     { threshold: 1500, label: "A++", color: "#c084fc" },
@@ -674,19 +626,6 @@ function formatNum(n) {
   return String(n);
 }
 
-function hexPath(cx, cy, r) {
-  const pts = Array.from({ length: 6 }, (_, i) => {
-    const a = (Math.PI / 180) * (60 * i - 90);
-    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
-  });
-  return `M ${pts.join(" L ")} Z`;
-}
-
-function hexPerimeter(r) {
-  return 6 * r; // perimeter of regular hexagon = 6 * side = 6 * r (flat-top)
-}
-
-// SVG icon paths (24x24 viewBox, centered at 0,0 — scaled via transform)
 const statIcons = {
   stars: `<path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" fill="FILL" stroke="none"/>`,
   commits: `<path d="M12 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z" fill="none" stroke="FILL" stroke-width="1.5" stroke-linecap="round"/>`,
@@ -695,11 +634,10 @@ const statIcons = {
   contribs: `<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="FILL"/>`,
 };
 
-function generateStatsSVG(username, avatar, stats, options = {}) {
+function generateStatsSVG(username, stats, options = {}) {
   const {
     theme = "dark",
     hide_border = false,
-    show_avatar = true,
     custom_title,
     card_width = 480,
     grade_style = "letter",
@@ -717,14 +655,12 @@ function generateStatsSVG(username, avatar, stats, options = {}) {
   );
   const title = custom_title || `${username}'s GitHub Stats`;
 
-  // Layout constants — minimal row-based design
   const PAD = 24;
-  const PROGRESS_BAR_H = grade.nextLabel ? 10 : 0; // extra space for progress bar (bar only, no text)
+  const PROGRESS_BAR_H = grade.nextLabel ? 10 : 0;
   const HEADER_H = 58 + PROGRESS_BAR_H;
   const DIVIDER_Y = HEADER_H + 4;
   const ROW_H = 34;
   const ROWS_TOP = DIVIDER_Y + 16;
-  const AV = 36;
 
   const statRows = [
     { key: "stars", label: "Stars", value: formatNum(stars) },
@@ -734,16 +670,10 @@ function generateStatsSVG(username, avatar, stats, options = {}) {
     { key: "contribs", label: "Contributed to", value: formatNum(contribs) },
   ];
 
-  // ── Grade badge ──────────────────────────────────────────────
-  // RPG: pill whose width adapts to the title text
-  // Letter: compact fixed-width pill (original look)
-
-  let gradeBadge;
-  // Badge is always anchored at y=18 (top area), independent of header growth
   const BADGE_FIXED_Y = 18;
+  let gradeBadge;
 
   if (grade.rpg) {
-    // Estimate text width: ~6.5px per char at font-size 10, plus 20px padding
     const textLen = grade.label.length;
     const BADGE_H = 20;
     const BADGE_W = Math.max(60, textLen * 6.5 + 20);
@@ -761,7 +691,6 @@ function generateStatsSVG(username, avatar, stats, options = {}) {
       fill="${grade.color}" text-anchor="middle">${grade.label.toUpperCase()}</text>
   `;
 
-    // Progress bar just below badge
     if (grade.nextLabel) {
       const BAR_Y = BADGE_Y + BADGE_H + 4;
       const BAR_W = BADGE_W;
@@ -788,7 +717,6 @@ function generateStatsSVG(username, avatar, stats, options = {}) {
       fill="${grade.color}" text-anchor="middle">${grade.label}</text>
   `;
 
-    // Progress bar just below badge
     if (grade.nextLabel) {
       const BAR_Y = BADGE_Y + BADGE_H + 4;
       const BAR_W = BADGE_W;
@@ -800,32 +728,12 @@ function generateStatsSVG(username, avatar, stats, options = {}) {
     }
   }
 
-  // Total card height
   const CARD_H = ROWS_TOP + statRows.length * ROW_H + PAD;
 
   const border = hide_border
     ? ""
     : `<rect width="${card_width}" height="${CARD_H}" rx="12" fill="none" stroke="${t.border}" stroke-width="1"/>`;
 
-  // Avatar — simple circle
-  const avX = PAD;
-  const avCX = avX + AV / 2;
-  const avCY = HEADER_H / 2;
-
-  const avatarBlock =
-    show_avatar && avatar
-      ? `
-    <clipPath id="av-circle">
-      <circle cx="${avCX}" cy="${avCY}" r="${AV / 2}"/>
-    </clipPath>
-    <circle cx="${avCX}" cy="${avCY}" r="${AV / 2}" fill="${t.card}" stroke="${t.border}" stroke-width="1"/>
-    <image href="${avatar}" x="${avX}" y="${avCY - AV / 2}" width="${AV}" height="${AV}" clip-path="url(#av-circle)"/>
-  `
-      : "";
-
-  const nameX = show_avatar && avatar ? avX + AV + 12 : PAD;
-
-  // Stat rows — label left, value right, subtle separator
   const rowsSVG = statRows
     .map(({ key, label, value }, i) => {
       const y = ROWS_TOP + i * ROW_H;
@@ -848,27 +756,21 @@ function generateStatsSVG(username, avatar, stats, options = {}) {
     })
     .join("");
 
-  // Grade badge — rendered above
-  const gradeBadgeSVG = gradeBadge;
-
   return `
-<svg width="${card_width}" height="${CARD_H}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="${card_width}" height="${CARD_H}" xmlns="http://www.w3.org/2000/svg">
 
   <!-- Background -->
   <rect width="${card_width}" height="${CARD_H}" rx="12" fill="${t.bg}"/>
   ${border}
 
-  <!-- Avatar -->
-  ${avatarBlock}
-
   <!-- Username + subtitle -->
-  <text x="${nameX}" y="${HEADER_H / 2 - 5}" font-size="14" font-weight="600"
+  <text x="${PAD}" y="${HEADER_H / 2 - 5}" font-size="14" font-weight="600"
     font-family="'Segoe UI','Ubuntu',sans-serif" fill="${t.text}">${username}</text>
-  <text x="${nameX}" y="${HEADER_H / 2 + 12}" font-size="10"
+  <text x="${PAD}" y="${HEADER_H / 2 + 12}" font-size="10"
     font-family="'Segoe UI','Ubuntu',sans-serif" fill="${t.subtext}">${title.replace(username + "'s ", "")}</text>
 
   <!-- Grade badge -->
-  ${gradeBadgeSVG}
+  ${gradeBadge}
 
   <!-- Divider -->
   <line x1="${PAD}" y1="${DIVIDER_Y + 8}" x2="${card_width - PAD}" y2="${DIVIDER_Y + 8}"
@@ -890,9 +792,9 @@ GET /stats/:username
 Query params:
   theme         dark | light | neon | night | purple | forest | nord | catppuccin
   hide_border   true | false (default: false)
-  show_avatar   true | false (default: true)
-  card_width    number in px (default: 520)
+  card_width    number in px (default: 480)
   custom_title  string
+  grade_style   letter | rpg (default: letter)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
@@ -901,10 +803,9 @@ app.get("/stats/:username", async (req, res) => {
     const { username } = req.params;
     const theme = req.query.theme || "dark";
     const hide_border = req.query.hide_border === "true";
-    const show_avatar = req.query.show_avatar !== "false";
     const card_width = Math.max(
       300,
-      Math.min(parseInt(req.query.card_width) || 520, 800),
+      Math.min(parseInt(req.query.card_width) || 480, 800),
     );
     const custom_title = req.query.custom_title || null;
     const grade_style = ["letter", "rpg"].includes(req.query.grade_style)
@@ -924,7 +825,6 @@ app.get("/stats/:username", async (req, res) => {
       { headers },
     );
     const user = userRes.data;
-    const avatar = await fetchAvatarBase64(user.avatar_url);
 
     // Fetch repos
     const reposRes = await axios.get(
@@ -936,7 +836,7 @@ app.get("/stats/:username", async (req, res) => {
     // Stars
     const stars = repos.reduce((acc, r) => acc + r.stargazers_count, 0);
 
-    // Commits (sum across all repos — GitHub API doesn't give a total directly)
+    // Commits
     let commits = 0;
     for (const repo of repos) {
       try {
@@ -953,18 +853,14 @@ app.get("/stats/:username", async (req, res) => {
       }
     }
 
-    // PRs, Issues, Contributed-to via search API
-    const [prsRes, issuesRes, contribsRes] = await Promise.all([
+    // PRs, Issues, Contributed-to
+    const [prsRes, issuesRes] = await Promise.all([
       axios.get(
         `https://api.github.com/search/issues?q=author:${username}+type:pr&per_page=1`,
         { headers },
       ),
       axios.get(
         `https://api.github.com/search/issues?q=author:${username}+type:issue&per_page=1`,
-        { headers },
-      ),
-      axios.get(
-        `https://api.github.com/search/repositories?q=user:${username}&per_page=1`,
         { headers },
       ),
     ]);
@@ -975,16 +871,8 @@ app.get("/stats/:username", async (req, res) => {
 
     const svg = generateStatsSVG(
       username,
-      avatar,
-      { stars, commits, prs, issues, contribs, repos: repos.length },
-      {
-        theme,
-        hide_border,
-        show_avatar,
-        card_width,
-        custom_title,
-        grade_style,
-      },
+      { stars, commits, prs, issues, contribs },
+      { theme, hide_border, card_width, custom_title, grade_style },
     );
 
     res.setHeader("Content-Type", "image/svg+xml");
