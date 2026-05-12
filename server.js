@@ -499,7 +499,7 @@ app.get("/languages/:username", async (req, res) => {
       `https://api.github.com/users/${username}`,
       { headers },
     );
-    const avatar = userResponse.data.avatar_url;
+    const avatar = await fetchAvatarBase64(userResponse.data.avatar_url);
 
     // Fetch repos
     let repos = [];
