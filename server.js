@@ -25,6 +25,20 @@ const headers = {
   Accept: "application/vnd.github+json",
 };
 
+async function fetchAvatarBase64(url) {
+  try {
+    const response = await axios.get(url, {
+      responseType: "arraybuffer",
+      headers,
+    });
+    const mime = response.headers["content-type"] || "image/png";
+    const b64 = Buffer.from(response.data).toString("base64");
+    return `data:${mime};base64,${b64}`;
+  } catch {
+    return null;
+  }
+}
+
 /*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COLORS
