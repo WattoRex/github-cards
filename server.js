@@ -910,7 +910,7 @@ app.get("/stats/:username", async (req, res) => {
       { headers },
     );
     const user = userRes.data;
-    const avatar = user.avatar_url;
+    const avatar = await fetchAvatarBase64(user.avatar_url);
 
     // Fetch repos
     const reposRes = await axios.get(

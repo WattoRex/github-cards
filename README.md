@@ -63,13 +63,13 @@ GET /stats/:username
 ### Example
 
 ```
-http://localhost:3000/stats/torvalds
+http://localhost:3000/stats/WattoRex
 ```
 
 Embed in a Markdown file:
 
 ```md
-![GitHub Stats](http://localhost:3000/stats/your-username)
+![GitHub Stats](https://github-cards-crc5.onrender.com/stats/your-username)
 ```
 
 ### Grade System
@@ -152,7 +152,7 @@ http://localhost:3000/languages/torvalds
 Embed in a Markdown file:
 
 ```md
-![Most Used Languages](http://localhost:3000/languages/your-username)
+![Most Used Languages](https://github-cards-crc5.onrender.com/languages/your-username)
 ```
 
 ### Query Parameters
@@ -250,19 +250,15 @@ Both cards support the same 8 themes:
 ### Side by Side in a Profile README
 
 ```md
-![Stats](http://localhost:3000/stats/your-username?theme=tokyonight&grade_style=rpg)
-![Languages](http://localhost:3000/languages/your-username?theme=tokyonight)
+![Stats](https://github-cards-crc5.onrender.com/stats/your-username?theme=forest)
+![Languages](https://github-cards-crc5.onrender.com/languages/your-username?theme=forest)
 ```
 
 ---
 
 ## Deploying
 
-This is a standard Express app. You can host it on any Node.
-
-> If you want `private=true` to work, you must self-host this server with your own `GITHUB_TOKEN`. A shared or public instance cannot access another user's private repositories.
-
-js-compatible platform:
+This is a standard Express app. You can host it on any Node.js-compatible platform:
 
 - [Railway](https://railway.app)
 - [Render](https://render.com)
@@ -270,7 +266,23 @@ js-compatible platform:
 - [Vercel](https://vercel.com) (with a serverless adapter)
 - Your own VPS
 
-Make sure to set `GITHUB_TOKEN` as an environment variable on your host.
+### Steps
+
+1. Clone the repository and install dependencies:
+
+```bash
+   git clone https://github.com/WattoRex/github-cards.git
+   cd github-cards
+   npm install
+```
+
+2. Set `GITHUB_TOKEN` and `PORT` as an environment variable on your host (never commit it to your repo).
+3. Make sure your platform runs `npm start` as the start command.
+
+> **⚠️ Note on private repositories**  
+> `private=true` only works if the server uses **your own** `GITHUB_TOKEN` — one that has access to your private repos.  
+> If you are using a public demo instance hosted by someone else, this parameter will have no effect or may return an error.  
+> To use it, self-host the server and set your own token in the environment variables.
 
 ---
 
