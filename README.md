@@ -66,11 +66,19 @@ GET /stats/:username
 http://localhost:3000/stats/WattoRex
 ```
 
+<div align="center">
+
+   ![GitHub Stats](https://www.github-card.xn--lonra-zsa.com/stats/WattoRex)
+
+</div>
+
 Embed in a Markdown file:
 
 ```md
 ![GitHub Stats](https://github-cards-crc5.onrender.com/stats/your-username)
 ```
+
+
 
 ### Grade System
 
@@ -125,10 +133,17 @@ A wider badge whose width adapts to the title text, displaying a fantasy-inspire
 ### Examples
 
 ```
-/stats/your-username?theme=tokyonight&grade_style=letter
-/stats/your-username?theme=dracula&grade_style=rpg
-/stats/your-username?theme=radical&hide_border=true&grade_style=rpg
+/stats/your-username?theme=night&grade_style=letter
+/stats/your-username?theme=purple&grade_style=rpg
+/stats/your-username?theme=neon&hide_border=true&grade_style=rpg
 ```
+
+<div align="center">
+
+   ![GitHub Stats](https://www.github-card.xn--lonra-zsa.com/stats/WattoRex?theme=night&grade_style=letter)  ![GitHub Stats](https://www.github-card.xn--lonra-zsa.com/stats/WattoRex?theme=neon&hide_border=true&grade_style=rpg)      
+
+</div>
+
 
 ---
 
@@ -141,11 +156,16 @@ Displays the most used programming languages across a user's repositories, with 
 ```
 GET /languages/:username
 ```
+<div align="center">
+
+   ![Most Used Languages](https://www.github-card.xn--lonra-zsa.com/languages/WattoRex)
+
+</div>
 
 ### Example
 
 ```
-http://localhost:3000/languages/torvalds
+http://localhost:3000/languages/WattoRex
 ```
 
 Embed in a Markdown file:
@@ -181,8 +201,24 @@ Embed in a Markdown file:
 ### Example with Options
 
 ```
-/languages/your-username?theme=radical&locale=fr&count=5&exclude_langs=HTML,CSS&show_repo_count=true
+/languages/your-username?theme=neon&locale=fr&count=5&exclude_langs=HTML,CSS&show_repo_count=true
+/languages/your-username?theme=nord&private=true&archived=true&exclude_langs=Hack&show_repo_count=true
 ```
+
+<div align="center" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+
+  <img
+    src="https://www.github-card.xn--lonra-zsa.com/languages/WattoRex?theme=neon&locale=fr&count=5&exclude_langs=HTML,CSS&show_repo_count=true"
+    height="180"
+  />
+
+  <img
+    src="https://www.github-card.xn--lonra-zsa.com/languages/WattoRex?theme=nord&private=true&archived=true&exclude_langs=Hack&show_repo_count=true"
+    height="180"
+  />
+
+</div>
+
 
 ### Supported Languages
 
@@ -238,10 +274,10 @@ Both cards support the same 8 themes:
 | ------------ | ------------------ |
 | `dark`       | Dark GitHub-style  |
 | `light`      | Light GitHub-style |
-| `radical`    | Hot pink neon      |
-| `tokyonight` | Tokyo Night blue   |
-| `dracula`    | Dracula purple     |
-| `monokai`    | Monokai green      |
+| `neon`       | Pink neon          |
+| `night`      | Night blue         |
+| `purple`     | Purple             |
+| `mForest`    | Green              |
 | `nord`       | Nord arctic        |
 | `catppuccin` | Catppuccin blue    |
 
@@ -251,6 +287,20 @@ Both cards support the same 8 themes:
 ![Stats](https://github-cards-crc5.onrender.com/stats/your-username?theme=forest)
 ![Languages](https://github-cards-crc5.onrender.com/languages/your-username?theme=forest)
 ```
+
+<div align="center" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+
+  <img
+    src="https://www.github-card.xn--lonra-zsa.com/stats/WattoRex?theme=forest"
+    height="240"
+  />
+
+  <img
+    src="https://www.github-card.xn--lonra-zsa.com/languages/WattoRex?theme=forest&private=true&archived=true&exclude_langs=Hack&show_repo_count=true"
+    height="180"
+  />
+
+</div>
 
 ---
 
